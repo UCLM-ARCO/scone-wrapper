@@ -16,7 +16,7 @@ from commodity.net import localhost, listen_port
 import Ice
 
 slice_dir = "/usr/share/slice"
-Ice.loadSlice("-I{0} {0}/dharma/dharma.ice --all".format(slice_dir))
+Ice.loadSlice("-I{0} {0}/dharma/scone-wrapper.ice --all".format(slice_dir))
 import Semantic
 
 project_dir = os.path.abspath(find_in_ancestors('.git', __file__))
@@ -44,13 +44,13 @@ class SconeWrapperTest(TestCase):
     def test_query(self):
         assert self.scone
         self.assertEquals(
-            self.scone.sconeRequest('(is-x-a-y? {elephant} {mammal})'), 'YES')
+            self.scone.request('(is-x-a-y? {elephant} {mammal})'), 'YES')
 
     def test_exception(self):
         assert self.scone
 
         try:
-            self.scone.sconeRequest('(new-is-a {elephant} {bird})')
+            self.scone.request('(new-is-a {elephant} {bird})')
             self.fail('exception should be thrown')
         except Semantic.SconeError as e:
             self.assertEquals(e.reason, '{elephant} cannot be a {bird}')
@@ -79,7 +79,7 @@ class LocalKnowledgeTest(TestCase):
         self.addCleanup(self.server.terminate)
 
         self.assertEquals(
-            self.scone.sconeRequest('(is-x-a-y? {Felix} {monkey})'), 'YES')
+            self.scone.request('(is-x-a-y? {Felix} {monkey})'), 'YES')
 
     def test_local_knowledge_error(self):
         test_dir = 'test/knowledge_error'
@@ -108,7 +108,7 @@ class LocalKnowledgeTest(TestCase):
         wait_that(localhost, listen_port(5001))
         self.addCleanup(self.server.terminate)
 
-        self.scone.sconeRequest('(new-indv {Jesus} {bird})')
+        self.scone.request('(new-indv {Jesus} {bird})')
         self.scone.checkpoint('birds')
         os.system('sync')
 
@@ -125,7 +125,7 @@ class LocalKnowledgeTest(TestCase):
         self.addCleanup(self.server.terminate)
 
         self.assertEquals(
-            self.scone.sconeRequest('(is-x-a-y? {Jesus} {bird})'), 'YES')
+            self.scone.request('(is-x-a-y? {Jesus} {bird})'), 'YES')
 
     def test_overwrite_checkpoint(self):
         test_dir = 'test/knowledge_ok/'
@@ -140,10 +140,10 @@ class LocalKnowledgeTest(TestCase):
         wait_that(localhost, listen_port(5001))
         self.addCleanup(self.server.terminate)
 
-        self.scone.sconeRequest('(new-indv {Jesus} {bird})')
+        self.scone.request('(new-indv {Jesus} {bird})')
         self.scone.checkpoint('birds')
 
-        self.scone.sconeRequest('(new-indv {Paco} {bird})')
+        self.scone.request('(new-indv {Paco} {bird})')
 
         try:
             self.scone.checkpoint('birds')

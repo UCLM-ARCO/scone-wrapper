@@ -7,7 +7,8 @@ import Ice
 import socket
 import time
 import signal
-# from commodity.os_ import SubProcess
+from pathlib import Path
+
 from subprocess import Popen
 import scone_client
 import logging
@@ -27,8 +28,9 @@ import Semantic
 LOCAL_KNOWLEDGE_DIR = 'scone-knowledge.d'
 SNAPSHOT_DIR = 'snapshots'
 
-SCONE_STATE = '.scone'
-PROXY_FILE = os.path.join(SCONE_STATE, 'scone-wrapper.proxy')
+SCONE_DIR = Path('.scone')
+PROXY_PATH = SCONE_DIR/Path('scone-wrapper.proxy')
+PID_PATH = SCONE_DIR/Path('scone-wrapper.pid')
 
 
 def iterate_files(path, callback):
@@ -109,17 +111,19 @@ class SconeServiceI(Semantic.SconeService):
         logging.info("New checkpoint at '{}' was OK".format(fpath))
 
 
-def save_proxy_to_file(proxy):
-    if not os.path.isdir(SCONE_STATE):
-        os.mkdir(SCONE_STATE)
+def save_status(proxy):
+    SCONE_DIR.mkdir(exist_ok=True)
 
-    with open(PROXY_FILE, 'wt') as f:
+    with open(PROXY_PATH, 'wt') as f:
         f.write('"{}"'.format(proxy))
 
+    with open(PID_PATH, 'wt') as f:
+        f.write(str(os.getpid()))
 
-def remove_proxy_file():
-    if os.path.exists(PROXY_FILE):
-        os.remove(PROXY_FILE)
+
+def remove_status():
+    PROXY_PATH.unlink(missing_ok=True)
+    PID_PATH.unlink(missing_ok=True)
 
 
 class Server(Ice.Application):
@@ -146,7 +150,7 @@ class Server(Ice.Application):
             proxy = adapter.add(servant, broker.stringToIdentity("scone"))
 
             print(proxy)
-            save_proxy_to_file(proxy)
+            save_status(proxy)
 
             sys.stdout.flush()
 
@@ -160,7 +164,7 @@ class Server(Ice.Application):
 
         finally:
             self.stop_scone_server()
-            remove_proxy_file()
+            remove_status()
 
         return 0
 

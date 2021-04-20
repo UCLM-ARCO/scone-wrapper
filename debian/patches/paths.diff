@@ -1,7 +1,7 @@
-Index: scone.wrapper/scone-wrapper
+Index: scone-wrapper/scone-wrapper
 ===================================================================
---- scone.wrapper.orig/scone-wrapper
-+++ scone.wrapper/scone-wrapper
+--- scone-wrapper.orig/scone-wrapper
++++ scone-wrapper/scone-wrapper
 @@ -1,6 +1,6 @@
  #!/bin/bash --
  # -*- coding: utf-8; mode: shell-script; tab-width: 4 -*-

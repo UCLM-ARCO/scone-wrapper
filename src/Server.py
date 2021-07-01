@@ -25,7 +25,6 @@ slice_dir = "/usr/share/slice"
 Ice.loadSlice("-I{0} {0}/dharma/scone-wrapper.ice --all".format(slice_dir))
 import Semantic
 
-LOCAL_KNOWLEDGE_DIR = 'scone-knowledge.d'
 SNAPSHOT_DIR = 'snapshots'
 
 SCONE_DIR = Path('.scone')
@@ -57,7 +56,7 @@ class SconeServiceI(Semantic.SconeService):
         else:
             raise SystemExit("connection FAILED!")
 
-        self.load_local_knowledge()
+        # self.load_local_knowledge()
 
     def load_local_knowledge(self):
         if not os.path.exists(LOCAL_KNOWLEDGE_DIR):
@@ -114,16 +113,19 @@ class SconeServiceI(Semantic.SconeService):
 def save_status(proxy):
     SCONE_DIR.mkdir(exist_ok=True)
 
-    with open(PROXY_PATH, 'wt') as f:
+    with PROXY_PATH.open('wt') as f:
         f.write('"{}"'.format(proxy))
 
-    with open(PID_PATH, 'wt') as f:
+    with PID_PATH.open('wt') as f:
         f.write(str(os.getpid()))
 
 
 def remove_status():
-    PROXY_PATH.unlink(missing_ok=True)
-    PID_PATH.unlink(missing_ok=True)
+    if PROXY_PATH.exists():
+        PROXY_PATH.unlink()
+
+    if PID_PATH.exists():
+        PID_PATH.unlink()
 
 
 class Server(Ice.Application):

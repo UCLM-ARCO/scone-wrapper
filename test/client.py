@@ -5,7 +5,7 @@ import os
 import sys
 import Ice
 
-Ice.loadSlice('-I /usr/share/slice /usr/share/slice/dharma/dharma.ice --all')
+Ice.loadSlice('-I /usr/share/slice /usr/share/slice/dharma/scone-wrapper.ice --all')
 import Semantic
 
 
@@ -17,7 +17,7 @@ class client (Ice.Application):
         if not scone:
             raise RuntimeError('Invalid proxy')
 
-        print(scone.sconeRequest('(is-x-a-y? {elephant} {mammal})'))
+        print(scone.sentence('(is-x-a-y? {elephant} {mammal})'))
 
         return 0
 
